@@ -26,20 +26,22 @@ class GTFNoConfigAutomationEngine(QMainWindow):
         
         # 1. TradingView Advanced Widget Interface (Direct WebView)
         self.browser = QWebEngineView()
-        tv_html = """
+        
+        # FIXED: Escaped JavaScript curly braces to prevent Python string parsing error
+        tv_html = f"""
         <html>
           <body style='margin:0;padding:0;background-color:#131722; overflow:hidden;'>
             <div id='tv-chart' style='width:100%;height:100%;'></div>
             <script type='text/javascript' src='https://s3.tradingview.com/tv.js'></script>
             <script type='text/javascript'>
-              new TradingView.widget({
+              new TradingView.widget({{
                 "width": "100%", "height": "100%",
                 "symbol": "NSE:NIFTY", "interval": "5",
                 "timezone": "Asia/Kolkata", "theme": "dark",
                 "style": "1", "locale": "en",
                 "enable_publishing": false, "hide_side_toolbar": false,
                 "allow_symbol_change": true, "container_id": "tv-chart"
-              });
+              }});
             </script>
           </body>
         </html>
@@ -59,7 +61,7 @@ class GTFNoConfigAutomationEngine(QMainWindow):
         self.status_header.setStyleSheet("color: #58a6ff; font-size: 12px; font-weight: bold; background-color: rgba(56,139,253,0.1); padding: 6px; border-radius: 4px; text-align: center;")
         sidebar_layout.addWidget(self.status_header)
         
-        lbl_strike_title = QLabel("\nTRACKED STRIKE PRICE (MAX OI)")
+        lbl_strike_title = QLabel("\\nTRACKED STRIKE PRICE (MAX OI)")
         lbl_strike_title.setStyleSheet("color: #8b949e; font-size: 10px; font-weight: bold;")
         self.lbl_strike = QLabel(self.strike_price)
         self.lbl_strike.setStyleSheet("color: #e6edf3; font-size: 22px; font-weight: bold; margin-bottom: 10px;")
@@ -73,13 +75,13 @@ class GTFNoConfigAutomationEngine(QMainWindow):
         sidebar_layout.addWidget(line)
         
         # GTF Institutional Operational Cards
-        self.card_sl = QLabel(f"🛑 DISTAL LINE (Seller SL)\nLevel: {self.distal_line}\n[Status: Strict SL Intact]")
+        self.card_sl = QLabel(f"🛑 DISTAL LINE (Seller SL)\\nLevel: {{self.distal_line}}\\n[Status: Strict SL Intact]")
         self.card_sl.setStyleSheet("background-color: rgba(255,123,114,0.08); border: 1px solid #ff7b72; border-radius: 6px; padding: 12px; color: #ff7b72; font-size: 12px;")
         
-        self.card_entry = QLabel(f"📥 PROXIMAL LINE (Seller Entry)\nLevel: {self.proximal_line}\n[Status: Institutional Entry Zone]")
+        self.card_entry = QLabel(f"📥 PROXIMAL LINE (Seller Entry)\\nLevel: {{self.proximal_line}}\\n[Status: Institutional Entry Zone]")
         self.card_entry.setStyleSheet("background-color: rgba(56,139,253,0.08); border: 1px solid #58a6ff; border-radius: 6px; padding: 12px; color: #58a6ff; font-size: 12px; margin-top: 10px;")
         
-        self.card_exit = QLabel(f"🏁 DEMAND ZONE (Seller Target/Exit)\nLevel: {self.target_exit}\n[Status: Target Unlocked]")
+        self.card_exit = QLabel(f"🏁 DEMAND ZONE (Seller Target/Exit)\\nLevel: {{self.target_exit}}\\n[Status: Target Unlocked]")
         self.card_exit.setStyleSheet("background-color: rgba(126,231,135,0.08); border: 1px solid #7ee787; border-radius: 6px; padding: 12px; color: #7ee787; font-size: 12px; margin-top: 10px;")
         
         sidebar_layout.addWidget(self.card_sl)
@@ -99,15 +101,15 @@ class GTFNoConfigAutomationEngine(QMainWindow):
         self.current_ltp += tick_move
         
         if self.current_ltp >= self.distal_line:
-            self.card_sl.setText(f"💥 SELLER SL BREACHED!\nLevel: {self.distal_line}\n[Alert: Institutional Exit Done]")
+            self.card_sl.setText(f"💥 SELLER SL BREACHED!\\nLevel: {{self.distal_line}}\\n[Alert: Institutional Exit Done]")
             self.card_sl.setStyleSheet("background-color: #2d1e1e; border: 2px solid #ff7b72; border-radius: 6px; padding: 12px; color: #ff7b72; font-weight: bold;")
             self.status_header.setText("⚠️ SHORT COVERING TRIGGERED")
             self.status_header.setStyleSheet("color: #ff7b72; font-size: 12px; font-weight: bold; background-color: rgba(255,123,114,0.1); padding: 6px; border-radius: 4px; text-align: center;")
         elif abs(self.current_ltp - self.proximal_line) <= 5.0:
-            self.card_entry.setText(f"📥 SELLER ACTIVE HERE\nLevel: {self.proximal_line}\n[Alert: Fresh Short Orders Added]")
+            self.card_entry.setText(f"📥 SELLER ACTIVE HERE\\nLevel: {{self.proximal_line}}\\n[Alert: Fresh Short Orders Added]")
             self.card_entry.setStyleSheet("background-color: #162235; border: 2px solid #58a6ff; border-radius: 6px; padding: 12px; color: #58a6ff; font-weight: bold;")
         elif self.current_ltp <= self.target_exit:
-            self.card_exit.setText(f"🏁 TARGET REACHED\nLevel: {self.target_exit}\n[Alert: Take Profit Complete]")
+            self.card_exit.setText(f"🏁 TARGET REACHED\\nLevel: {{self.target_exit}}\\n[Alert: Take Profit Complete]")
             self.card_exit.setStyleSheet("background-color: #192a20; border: 2px solid #7ee787; border-radius: 6px; padding: 12px; color: #7ee787; font-weight: bold;")
 
 if __name__ == '__main__':
